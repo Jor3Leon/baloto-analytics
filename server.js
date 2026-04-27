@@ -20,6 +20,7 @@ app.use(express.static('.'));
 // Helper for scraping
 async function scrapeBaloto(pages = 2) {
     const allItems = [];
+    const dateOccurrences = {};
     for (let page = 1; page <= pages; page++) {
         const url = `https://www.baloto.com/resultados/${page > 1 ? '?page=' + page : ''}`;
         const response = await fetch(url, {
@@ -41,8 +42,12 @@ async function scrapeBaloto(pages = 2) {
         while ((match = pattern.exec(text)) !== null) {
             const numbers = match[2].split('-').map(n => parseInt(n.trim()));
             if (numbers.length >= 6) {
+                const baseDate = match[1].trim();
+                dateOccurrences[baseDate] = (dateOccurrences[baseDate] || 0) + 1;
+                const suffix = dateOccurrences[baseDate] === 1 ? ' - Baloto' : ' - Revancha';
+                
                 allItems.push({
-                    date_label: match[1].trim(),
+                    date_label: baseDate + suffix,
                     nums: numbers.slice(0, 5),
                     super_ball: numbers[5],
                     source: 'baloto.com'
