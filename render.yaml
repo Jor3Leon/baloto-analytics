@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: baloto-analytics
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SUPABASE_URL
+        value: https://fuygccurtzjjbstwxaly.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: sb_publishable_4a508AX-u2-eN0QpPOjdKg_TRi6nLfT
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
