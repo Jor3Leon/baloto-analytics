@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modelo Estadistico Baloto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Manrope:wght@700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="assets/css/styles.css?v=3">
+</head>
+
+<body>
+  <!-- Cabecera Top Nav (Mobile style) -->
+  <header class="top-nav">
+    <button class="icon-btn" id="menuBtn" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <div class="logo">BALOTO ANALYTICS</div>
+    <div class="profile-pic">
+      <img src="https://ui-avatars.com/api/?name=Admin&background=1e293b&color=d4ff00" alt="Profile" />
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="section-title" style="display: flex; justify-content: space-between; align-items: flex-end;">
+      <div>
+        <span class="label" data-t="engineStatus">ESTADO DEL MOTOR MATEMÁTICO</span>
+        <h2 data-t="activeAnalysis" style="margin: 0; margin-top: 4px;">ANÁLISIS ACTIVO</h2>
+      </div>
+      <button id="syncBtn" class="btn btn-secondary" type="button" data-t="syncOnline"
+        style="padding: 6px 12px; font-size: 11px; margin-bottom: 2px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="margin-right: 4px; vertical-align: text-bottom;">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        SINCRO ONLINE
+      </button>
+    </div>
+
+
+    <!-- Toggle y Boton Generar -->
+    <div class="action-card">
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          <span data-t="realDrawSim">SIMULACIÓN DE SORTEO REAL</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="learn" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <button id="generateBtn" class="btn btn-primary btn-block" type="button" data-t="generateBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        GENERAR COMBINACIÓN
+      </button>
+    </div>
+
+    <!-- Resultados Baloto y Revancha -->
+    <div class="results-grid">
+      <!-- Resultados Baloto -->
+      <div class="result-card result-baloto">
+        <div class="card-header">
+          <h3 class="text-primary">BALOTO</h3>
+          <span class="label"><span data-t="draw">SORTEO</span> <span id="modeLabel"></span></span>
+        </div>
+        <div class="numbers-display">
+          <div class="result-nums" id="balotoNums">-</div>
+          <div class="super-num" id="balotoSuper">-</div>
+        </div>
+      </div>
+
+      <!-- Resultados Revancha -->
+      <div class="result-card result-revancha">
+        <div class="card-header">
+          <h3 class="text-secondary">REVANCHA</h3>
+          <span class="label" data-t="draw">SORTEO</span>
+        </div>
+        <div class="numbers-display">
+          <div class="result-nums" id="revanchaNums">-</div>
+          <div class="super-num" id="revanchaSuper">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Numeros Calientes, Frios y Atrasados -->
+    <div class="stats-grid-3 mt-3">
+      <div class="stat-card">
+        <span class="label text-primary" data-t="hotNums">NÚMEROS CALIENTES</span>
+        <div class="pill-list row-nowrap mt-2" id="hotNumbers"></div>
+      </div>
+      <div class="stat-card">
+        <span class="label text-secondary" data-t="coldNums">NÚMEROS FRÍOS</span>
+        <div class="pill-list row-nowrap mt-2" id="coldNumbers"></div>
+      </div>
+      <div class="stat-card">
+        <span class="label text-danger" data-t="overdueDays">DÍAS ATRASADOS</span>
+        <div class="pill-list row-nowrap mt-2" id="overdueNumbers"></div>
+      </div>
+    </div>
+
+
+
+    <!-- Charts Toggle & Analytics -->
+    <div class="action-card mt-3">
+      <div class="card-header cursor-pointer" id="toggleChartsBtn">
+        <h3 data-t="trendCharts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" class="mr-2 text-secondary">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg> GRÁFICOS DE TENDENCIA</h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+
+      <div id="chartsPanel" class="hidden-panel mt-3">
+        <div class="chart-block">
+          <div class="chart-label">
+            <span class="label text-secondary">FRECUENCIA POR NÚMERO</span>
+            <span class="label" id="chartNumbersLabel" style="color:var(--muted)"></span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="freqChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-block mt-3">
+          <div class="chart-label">
+            <span class="label text-primary">FRECUENCIA SUPERBALOTA</span>
+            <span class="label" id="chartSuperLabel" style="color:var(--muted)"></span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="superChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-card mt-3">
+      <div class="card-header cursor-pointer" id="toggleRecommendationsBtn">
+        <h3 data-t="aiRecs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" class="mr-2 text-primary">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+            </polygon>
+          </svg> RECOMENDACIONES IA</h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div id="recommendationsPanel" class="hidden-panel mt-3">
+        <div id="recommendations"></div>
+      </div>
+    </div>
+
+    <!-- Patrones y CSV -->
+    <div class="action-card mt-3">
+      <div class="card-header border-0 mb-3" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 data-t="patternsData" style="margin:0; display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            class="text-secondary">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          PATRONES Y DATOS
+        </h3>
+        <div class="button-row" style="gap: 8px; margin:0;">
+          <button id="exportBtn" class="btn btn-outline" type="button" data-t="export"
+            style="padding: 6px 12px; font-size: 11px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="vertical-align:middle; margin-right:4px;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            EXPORTAR
+          </button>
+        </div>
+      </div>
+
+      <div class="patterns-grid">
+        <!-- Pares -->
+        <div class="pattern-col">
+          <div class="pattern-col-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="12" r="7"></circle>
+              <circle cx="15" cy="12" r="7"></circle>
+            </svg>
+            <span class="label" data-t="topPairs">PARES PRINCIPALES</span>
+          </div>
+          <div class="pattern-list" id="topPairs"></div>
+        </div>
+        <!-- Triples -->
+        <div class="pattern-col">
+          <div class="pattern-col-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 19 21 5 21"></polygon>
+            </svg>
+            <span class="label" data-t="topTriples">TRIPLES PRINCIPALES</span>
+          </div>
+          <div class="pattern-list" id="topTriples"></div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Historico -->
+    <div class="action-card mt-4" id="historyCard">
+      <div class="card-header border-0 mb-2" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span data-t="recentActivity">ACTIVIDAD RECIENTE</span>
+          <span id="historyCount" class="history-badge"></span>
+        </h3>
+        <button id="clearHistoryBtn" class="btn btn-outline btn-danger-outline" type="button" title="Limpiar historial"
+          style="padding: 5px 10px; font-size: 11px; display:none;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="vertical-align:middle; margin-right:3px;">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path><path d="M14 11v6"></path>
+            <path d="M9 6V4h6v2"></path>
+          </svg>
+          LIMPIAR
+        </button>
+      </div>
+      <div class="history-list" id="history"></div>
+    </div>
+
+
+  </div>
+
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h3 data-t="menu">MENÚ</h3>
+      <button id="closeSidebarBtn" class="icon-btn" aria-label="Close Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <ul class="sidebar-menu">
+        <li><a href="#" id="menuHome" data-t="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg> Inicio</a></li>
+        <li><a href="#" id="menuSettings" data-t="settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+              </path>
+            </svg> Ajustes</a></li>
+        <li><a href="#" id="menuAbout" data-t="about"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg> Acerca de</a></li>
+        <li class="sidebar-divider"></li>
+        <li class="lang-item">
+          <div class="lang-selector">
+            <span class="label mb-2" style="display:block; text-align:center;" data-t="idioma">IDIOMA / LANGUAGE</span>
+            <div class="button-row">
+              <button id="lang-es" class="btn btn-outline lang-btn">ES</button>
+              <button id="lang-en" class="btn btn-outline lang-btn">EN</button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+  <div id="detailsModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" id="detailsModalBackdrop"></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="detailsModalTitle">Detalle</h3>
+        <button id="detailsModalClose" class="modal-close" type="button">&times;</button>
+      </div>
+      <div class="modal-body" id="detailsModalBody"></div>
+    </div>
+  </div>
+
+  <div id="aboutPanel" class="hidden-panel">
+    <div style="padding: 15px; line-height: 1.6; color: var(--text);">
+      <p><strong>BALOTO ANALYTICS</strong> es una herramienta avanzada de modelado estadístico diseñada para identificar
+        patrones y tendencias históricas en los sorteos de Baloto.</p>
+      <div class="spacer-14"></div>
+      <p><strong>Funcionalidades principales:</strong></p>
+      <ul style="padding-left: 20px; margin-top: 10px; margin-bottom: 15px;">
+        <li style="margin-bottom: 5px;">Sincronización automática de resultados.</li>
+        <li style="margin-bottom: 5px;">Análisis de números calientes, fríos y atrasados.</li>
+        <li style="margin-bottom: 5px;">Gráficos de tendencia de frecuencia.</li>
+        <li style="margin-bottom: 5px;">Generador de combinaciones inteligentes.</li>
+        <li style="margin-bottom: 5px;">Recomendaciones.</li>
+      </ul>
+      <p style="font-size: 0.85em; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px;">Nota:
+        Esta aplicación es netamente estadística y de entretenimiento, no garantiza premios. Juegue con responsabilidad.
+      </p>
+    </div>
+  </div>
+
+  <div id="detailsPanelsHost" class="hidden-panel"></div>
+
+  <!-- Supabase Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.js"></script>
+
+  <script src="assets/js/i18n.js?v=3"></script>
+  <script src="assets/js/config.js?v=3" defer></script>
+  <script src="assets/js/storage.js?v=3" defer></script>
+  <script src="assets/js/engine.js?v=3" defer></script>
+  <script src="assets/js/charts.js?v=3" defer></script>
+  <script src="assets/js/ui.js?v=3" defer></script>
+  <script src="assets/js/app.js?v=3" defer></script>
+</body>
+
+</html>
