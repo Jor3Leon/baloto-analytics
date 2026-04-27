@@ -65,7 +65,8 @@ function normalizeRemoteDraw(item){
   if(!item || !Array.isArray(item.nums) || item.nums.length !== PICK_COUNT) return null;
 
   const nums = uniqueSorted(item.nums.map(n => Number(n)).filter(Number.isFinite));
-  const superValue = Number(item.super);
+  const rawSuper = item.super !== undefined ? item.super : item.super_ball;
+  const superValue = Number(rawSuper);
   const validNums = nums.length === PICK_COUNT && nums.every(n => n >= 1 && n <= NUM_MAX);
   const validSuper = Number.isInteger(superValue) && superValue >= 1 && superValue <= SUPER_MAX;
 
@@ -76,7 +77,7 @@ function normalizeRemoteDraw(item){
   return {
     nums,
     super: superValue,
-    dateLabel: item.dateLabel || "",
+    dateLabel: item.dateLabel || item.date_label || "",
     source: item.source || "baloto.com"
   };
 }
