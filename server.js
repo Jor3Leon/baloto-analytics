@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 // Supabase config
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(cors());
@@ -22,11 +22,16 @@ async function scrapeBaloto(pages = 2) {
     const allItems = [];
     for (let page = 1; page <= pages; page++) {
         const url = `https://www.baloto.com/resultados/${page > 1 ? '?page=' + page : ''}`;
-        const { data } = await axios.get(url, {
+        const response = await fetch(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
             }
         });
+        if (!response.ok) {
+            console.error(`Fetch error ${response.status} for ${url}`);
+            continue;
+        }
+        const data = await response.text();
         const $ = cheerio.load(data);
         const text = $('body').text().replace(/\s+/g, ' ');
         
