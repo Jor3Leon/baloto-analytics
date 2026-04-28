@@ -7,11 +7,13 @@
   <title>Modelo Estadistico Baloto</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Manrope:wght@700&family=Space+Grotesk:wght@500;600;700&display=swap">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Manrope:wght@700&family=Space+Grotesk:wght@500;600;700&display=swap"
     rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="preload" as="style" href="assets/css/styles.css?v=3">
   <link rel="stylesheet" href="assets/css/styles.css?v=3">
+  <link rel="preload" as="image" href="assets/img/galaxy_bg.png" fetchpriority="high">
 </head>
 
 <body>
@@ -332,15 +334,18 @@
 
   <div id="detailsPanelsHost" class="hidden-panel"></div>
 
+  <!-- Charts Library (Moved to bottom and deferred) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+
   <!-- Supabase Library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="assets/js/supabase.js" defer></script>
 
   <!-- PDF Generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
 
-  <script src="assets/js/i18n.js?v=3"></script>
+  <script src="assets/js/i18n.js?v=3" defer></script>
   <script src="assets/js/config.js?v=3" defer></script>
   <script src="assets/js/storage.js?v=3" defer></script>
   <script src="assets/js/engine.js?v=3" defer></script>

@@ -193,8 +193,11 @@ function generatePDFReport() {
     y += 6;
 
     const ballSpacing = CONTENT_W / 12;
+    const totalBallsWidth = ballSpacing * 11;
+    const ballsOffsetX = (CONTENT_W - totalBallsWidth) / 2;
+
     hotTop10.forEach((entry, i) => {
-      const bx = MARGIN + ballSpacing * (i + 0.5) + 3;
+      const bx = MARGIN + ballsOffsetX + ballSpacing * (i + 0.5);
       drawNumberBall(bx, y + 3, entry[0], RED_HOT, WHITE, 5);
       doc.setFontSize(6);
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
@@ -203,7 +206,7 @@ function generatePDFReport() {
 
     if (superSorted.length) {
       const topSuper = superSorted[0];
-      const sbx = MARGIN + ballSpacing * (10 + 0.5) + 3;
+      const sbx = MARGIN + ballsOffsetX + ballSpacing * (10 + 0.5);
       drawNumberBall(sbx, y + 3, topSuper[0], ACCENT, WHITE, 5);
       doc.setFontSize(6);
       doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
@@ -223,7 +226,7 @@ function generatePDFReport() {
     y += 6;
 
     coldTop10.forEach((entry, i) => {
-      const bx = MARGIN + ballSpacing * (i + 0.5) + 3;
+      const bx = MARGIN + ballsOffsetX + ballSpacing * (i + 0.5);
       drawNumberBall(bx, y + 3, entry[0], BLUE_COLD, WHITE, 5);
       doc.setFontSize(6);
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
@@ -232,7 +235,7 @@ function generatePDFReport() {
 
     if (superSorted.length) {
       const worstSuper = superSorted[superSorted.length - 1];
-      const wbx = MARGIN + ballSpacing * (10 + 0.5) + 3;
+      const wbx = MARGIN + ballsOffsetX + ballSpacing * (10 + 0.5);
       drawNumberBall(wbx, y + 3, worstSuper[0], [55, 65, 81], WHITE, 5);
       doc.setFontSize(6);
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
@@ -307,13 +310,15 @@ function generatePDFReport() {
           fontSize: 6.5,
           cellPadding: 1.5,
           lineColor: BORDER,
-          lineWidth: 0.1
+          lineWidth: 0.1,
+          halign: 'center'
         },
         headStyles: {
           fillColor: ACCENT,
           textColor: WHITE,
           fontStyle: "bold",
-          fontSize: 6.5
+          fontSize: 6.5,
+          halign: 'center'
         },
         alternateRowStyles: {
           fillColor: DARK_GRID
@@ -365,12 +370,14 @@ function generatePDFReport() {
           fontSize: 7,
           cellPadding: 2,
           lineColor: BORDER,
-          lineWidth: 0.1
+          lineWidth: 0.1,
+          halign: 'center'
         },
         headStyles: {
           fillColor: ACCENT,
           textColor: WHITE,
-          fontStyle: "bold"
+          fontStyle: "bold",
+          halign: 'center'
         },
         alternateRowStyles: { fillColor: DARK_GRID },
         margin: { left: MARGIN, right: MARGIN },
@@ -408,12 +415,14 @@ function generatePDFReport() {
           fontSize: 7,
           cellPadding: 2,
           lineColor: BORDER,
-          lineWidth: 0.1
+          lineWidth: 0.1,
+          halign: 'center'
         },
         headStyles: {
           fillColor: ACCENT,
           textColor: WHITE,
-          fontStyle: "bold"
+          fontStyle: "bold",
+          halign: 'center'
         },
         alternateRowStyles: { fillColor: DARK_GRID },
         margin: { left: MARGIN, right: MARGIN },
@@ -454,12 +463,14 @@ function generatePDFReport() {
           fontSize: 7,
           cellPadding: 2,
           lineColor: BORDER,
-          lineWidth: 0.1
+          lineWidth: 0.1,
+          halign: 'center'
         },
         headStyles: {
           fillColor: ACCENT,
           textColor: WHITE,
-          fontStyle: "bold"
+          fontStyle: "bold",
+          halign: 'center'
         },
         alternateRowStyles: { fillColor: DARK_GRID },
         margin: { left: MARGIN, right: MARGIN },
@@ -511,12 +522,14 @@ function generatePDFReport() {
           fontSize: 7,
           cellPadding: 2,
           lineColor: BORDER,
-          lineWidth: 0.1
+          lineWidth: 0.1,
+          halign: 'center'
         },
         headStyles: {
           fillColor: ACCENT,
           textColor: WHITE,
-          fontStyle: "bold"
+          fontStyle: "bold",
+          halign: 'center'
         },
         alternateRowStyles: { fillColor: DARK_GRID },
         margin: { left: MARGIN, right: MARGIN },
@@ -524,7 +537,7 @@ function generatePDFReport() {
           0: { cellWidth: 10 },
           1: { cellWidth: 70 },
           2: { cellWidth: 65 },
-          3: { cellWidth: 20, halign: "center" }
+          3: { cellWidth: 20 }
         }
       });
       y = doc.lastAutoTable.finalY + 8;
@@ -564,23 +577,25 @@ function generatePDFReport() {
           fontSize: 7,
           cellPadding: 2,
           lineColor: BORDER,
-          lineWidth: 0.1
+          lineWidth: 0.1,
+          halign: 'center'
         },
         headStyles: {
           fillColor: ACCENT,
           textColor: WHITE,
-          fontStyle: "bold"
+          fontStyle: "bold",
+          halign: 'center'
         },
         alternateRowStyles: { fillColor: DARK_GRID },
         margin: { left: MARGIN, right: MARGIN },
         columnStyles: {
           0: { cellWidth: 10 },
           1: { cellWidth: 50 },
-          2: { cellWidth: 20, halign: 'center' },
-          3: { cellWidth: 20, halign: 'center' },
-          4: { cellWidth: 20, halign: 'center' },
-          5: { cellWidth: 20, halign: 'center' },
-          6: { cellWidth: 25, halign: 'center' }
+          2: { cellWidth: 20 },
+          3: { cellWidth: 20 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 20 },
+          6: { cellWidth: 25 }
         }
       });
     }
