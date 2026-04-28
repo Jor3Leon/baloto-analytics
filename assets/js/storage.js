@@ -47,6 +47,22 @@ async function syncDrawsFromCloud() {
             const normalized = cloudDraws.map(normalizeRemoteDraw).filter(Boolean);
             saveJson(STORAGE_REALES, normalized);
             return normalized;
+        } else {
+            // Nube vacía: si el usuario tiene un historial local robusto, migrarlo a la nube.
+            const local = loadDraws();
+            if (local && local.length > 50) {
+                console.log("Nube vacía. Migrando automáticamente " + local.length + " sorteos a la web...");
+                try {
+                    await fetch('/api/force-upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(local)
+                    });
+                    console.log("Migración completada con éxito.");
+                } catch(e) {
+                    console.error("Error en migración", e);
+                }
+            }
         }
     }
     return loadDraws();
