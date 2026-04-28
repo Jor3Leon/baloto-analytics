@@ -59,26 +59,6 @@ function shouldAutoSyncNow(date = new Date()){
   return date.getMinutes() >= AUTO_SYNC_MINUTE;
 }
 
-function normalizeRemoteDraw(item){
-  if(!item || !Array.isArray(item.nums) || item.nums.length !== PICK_COUNT) return null;
-
-  const nums = uniqueSorted(item.nums.map(n => Number(n)).filter(Number.isFinite));
-  const rawSuper = item.super !== undefined ? item.super : item.super_ball;
-  const superValue = Number(rawSuper);
-  const validNums = nums.length === PICK_COUNT && nums.every(n => n >= 1 && n <= NUM_MAX);
-  const validSuper = Number.isInteger(superValue) && superValue >= 1 && superValue <= SUPER_MAX;
-
-  if(!validNums || !validSuper){
-    return null;
-  }
-
-  return {
-    nums,
-    super: superValue,
-    dateLabel: item.dateLabel || item.date_label || "",
-    source: item.source || "baloto.com"
-  };
-}
 
 const SYNC_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`;
 const SPIN_ICON  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 12a9 9 0 1 1-9-9"/></svg>`;

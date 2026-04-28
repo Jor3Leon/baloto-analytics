@@ -18,13 +18,35 @@ function uniqueSorted(values){
   return [...new Set(values)].sort((a, b) => a - b);
 }
 
+function normalizeRemoteDraw(item){
+  if(!item || !Array.isArray(item.nums) || item.nums.length !== PICK_COUNT) return null;
+
+  const nums = uniqueSorted(item.nums.map(n => Number(n)).filter(Number.isFinite));
+  const rawSuper = item.super !== undefined ? item.super : item.super_ball;
+  const superValue = Number(rawSuper);
+  const validNums = nums.length === PICK_COUNT && nums.every(n => n >= 1 && n <= NUM_MAX);
+  const validSuper = Number.isInteger(superValue) && superValue >= 1 && superValue <= SUPER_MAX;
+
+  if(!validNums || !validSuper){
+    return null;
+  }
+
+  return {
+    nums,
+    super: superValue,
+    dateLabel: item.dateLabel || item.date_label || "",
+    source: item.source || "baloto.com"
+  };
+}
+
 // Sincronización con Supabase (Async)
 async function syncDrawsFromCloud() {
     if (typeof dbLoadDraws === 'function') {
         const cloudDraws = await dbLoadDraws();
         if (cloudDraws && cloudDraws.length > 0) {
-            saveJson(STORAGE_REALES, cloudDraws);
-            return cloudDraws;
+            const normalized = cloudDraws.map(normalizeRemoteDraw).filter(Boolean);
+            saveJson(STORAGE_REALES, normalized);
+            return normalized;
         }
     }
     return loadDraws();
