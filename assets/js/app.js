@@ -241,8 +241,8 @@ function generateAll(){
   const freq = els.learn.checked ? model.freq : baseFreq;
   const superFreq = els.learn.checked ? model.superFreq : baseSuperFreq;
 
-  const baloto = generateBestCombination(freq);
-  const revancha = generateBestCombination(freq);
+  const baloto = generateBestCombination(els.learn.checked ? model : { freq: baseFreq, superFreq: baseSuperFreq });
+  const revancha = generateBestCombination(els.learn.checked ? model : { freq: baseFreq, superFreq: baseSuperFreq });
   const balotoSuper = chooseSuper(superFreq);
   const revanchaSuper = chooseDistinctSuper(superFreq, balotoSuper);
 

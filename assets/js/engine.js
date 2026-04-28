@@ -3,6 +3,7 @@
 function buildModel(draws){
   const freq = {...baseFreq};
   const superFreq = {...baseSuperFreq};
+  const harmonicFreq = {};
   const counts = {};
   const superCounts = {};
   const lastSeen = {};
@@ -10,13 +11,19 @@ function buildModel(draws){
   const totalDraws = draws.length;
   let decayWeight = 1;
 
+  for(let i=1; i<=NUM_MAX; i++) harmonicFreq[i] = LAMBDA;
+
   for(let index = draws.length - 1; index >= 0; index--){
     const draw = draws[index];
     if(!draw || !Array.isArray(draw.nums) || typeof draw.super !== "number") continue;
 
+    const recency = totalDraws - index;
+    const harmonicWeight = 1 / recency;
+
     draw.nums.forEach(n => {
       if(n >= 1 && n <= NUM_MAX){
         freq[n] += decayWeight;
+        harmonicFreq[n] += harmonicWeight;
         counts[n] = (counts[n] || 0) + 1;
         if(lastSeen[n] === undefined){
           lastSeen[n] = totalDraws - 1 - index;
@@ -35,10 +42,26 @@ function buildModel(draws){
     decayWeight *= DECAY;
   }
 
+  // Poisson y Chi-cuadrado
+  const expectedFreq = totalDraws > 0 ? totalDraws * (PICK_COUNT / NUM_MAX) : 0;
+  let chiSquared = 0;
+  const poissonProb = {};
+  
+  if (expectedFreq > 0) {
+    for (let i = 1; i <= NUM_MAX; i++) {
+      const o = counts[i] || 0;
+      chiSquared += Math.pow(o - expectedFreq, 2) / expectedFreq;
+      poissonProb[i] = (o - expectedFreq) / Math.sqrt(expectedFreq);
+    }
+  }
+
   return {
     draws,
     freq,
     superFreq,
+    harmonicFreq,
+    poissonProb,
+    chiSquared,
     counts,
     superCounts,
     lastSeen,
@@ -79,24 +102,53 @@ function weightedSampleWithoutReplacement(freq, max, count, exclude = new Set())
   return picked.sort((a, b) => a - b);
 }
 
-function scoreCombination(combo, freq){
+function scoreCombination(combo, model){
   if(combo.length !== PICK_COUNT) return -Infinity;
 
-  const weights = combo.reduce((sum, n) => sum + (freq[n] || 0), 0);
+  const { freq, harmonicFreq, poissonProb, chiSquared } = model;
+  
+  // Base sum
+  let weights = combo.reduce((sum, n) => sum + (freq[n] || 0), 0);
+  
+  // Harmonic boost
+  if (harmonicFreq) {
+    const harmonicBoost = combo.reduce((sum, n) => sum + (harmonicFreq[n] || 0), 0) * 2;
+    weights += harmonicBoost;
+  }
+
+  // Poisson anomaly
+  if (poissonProb) {
+    const poissonModifier = combo.reduce((sum, n) => sum + Math.abs(poissonProb[n] || 0), 0);
+    weights += poissonModifier;
+  }
+
+  // Rango de Suma Gaussiana (Campana de Gauss)
+  const sum = combo.reduce((acc, n) => acc + n, 0);
+  const sumPenalty = (sum < 70 || sum > 150) ? 50 : (sum < 85 || sum > 135) ? 10 : 0;
+
+  // Analisis de Sistemas Delta
+  let maxDelta = 0;
+  for(let i=1; i < combo.length; i++) {
+      const delta = combo[i] - combo[i-1];
+      if (delta > maxDelta) maxDelta = delta;
+  }
+  const deltaPenalty = maxDelta > 20 ? (maxDelta - 20) * 2 : 0;
+
   const spread = combo[combo.length - 1] - combo[0];
   const parityBalance = Math.abs(combo.filter(n => n % 2 === 0).length - 2.5);
   const lowHighBalance = Math.abs(combo.filter(n => n <= 21).length - 2.5);
 
-  return weights + (spread / 10) - parityBalance - lowHighBalance;
+  return weights + (spread / 10) - parityBalance - lowHighBalance - sumPenalty - deltaPenalty;
 }
 
-function generateBestCombination(freq){
+function generateBestCombination(model){
+  const freq = model.freq;
   let best = weightedSampleWithoutReplacement(freq, NUM_MAX, PICK_COUNT);
-  let bestScore = scoreCombination(best, freq);
+  let bestScore = scoreCombination(best, model);
 
   for(let i = 0; i < ITER; i++){
     const candidate = weightedSampleWithoutReplacement(freq, NUM_MAX, PICK_COUNT);
-    const score = scoreCombination(candidate, freq);
+    const score = scoreCombination(candidate, model);
     if(score > bestScore){
       best = candidate;
       bestScore = score;
@@ -165,13 +217,13 @@ function analyzePatterns(draws){
   return { pairCounts, tripleCounts };
 }
 
-function buildRecommendationCard(candidate, freq, superFreq){
+function buildRecommendationCard(candidate, model){
   const sum = candidate.reduce((acc, n) => acc + n, 0);
   const even = candidate.filter(n => n % 2 === 0).length;
   const low = candidate.filter(n => n <= 21).length;
   const spread = candidate[candidate.length - 1] - candidate[0];
-  const score = scoreCombination(candidate, freq);
-  const superPick = chooseSuper(superFreq);
+  const score = scoreCombination(candidate, model);
+  const superPick = chooseSuper(model.superFreq);
 
   return {
     numbers: candidate,
@@ -184,7 +236,8 @@ function buildRecommendationCard(candidate, freq, superFreq){
   };
 }
 
-function generateRecommendations(freq, superFreq){
+function generateRecommendations(model){
+  const freq = model.freq;
   const unique = new Map();
   const attempts = 500;
 
@@ -193,7 +246,7 @@ function generateRecommendations(freq, superFreq){
     if(candidate.length !== PICK_COUNT) continue;
     const key = candidate.join("-");
     if(unique.has(key)) continue;
-    unique.set(key, buildRecommendationCard(candidate, freq, superFreq));
+    unique.set(key, buildRecommendationCard(candidate, model));
   }
 
   return [...unique.values()]

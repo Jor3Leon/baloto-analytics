@@ -62,3 +62,22 @@ async function dbClearHistory() {
     .neq('id', 0);
   if (error) console.error("Error clearing history:", error);
 }
+
+async function dbLoadDraws() {
+  if (!supabaseClient) return [];
+  try {
+    const { data, error } = await supabaseClient
+      .from('draws')
+      .select('*')
+      .order('date_label', { ascending: false });
+    
+    if (error) {
+      console.error("Error loading draws from cloud:", error);
+      return [];
+    }
+    return data || [];
+  } catch (e) {
+    console.error("Critical error loading draws:", e);
+    return [];
+  }
+}

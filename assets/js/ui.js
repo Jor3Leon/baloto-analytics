@@ -10,8 +10,7 @@ function formatPillsWithSuper(values, superNum, superColor){
   const pills = values.map(v => `<span class="pill">${v}</span>`).join("");
   const superBadge = superNum != null
     ? `<div class="super-pill-container" style="margin-left: 12px; display: flex; align-items: center; gap: 6px; border-left: 1px solid var(--border); padding-left: 12px;">
-         <span class="label" style="font-size: 9px; opacity: 0.7;">SUPER</span>
-         <span class="pill pill-super" style="background:${superColor};color:#000;border-color:${superColor}; font-weight: bold;" title="Superbalota">★ ${superNum}</span>
+         <span class="pill pill-super" style="background:${superColor};color:#000;border-color:${superColor}; font-weight: bold;" title="Superbalota">${superNum}</span>
        </div>`
     : "";
   return pills + superBadge;
@@ -32,6 +31,11 @@ function showNotice(message, type = "info"){
 
 function renderModel(model){
   els.modeLabel.textContent = els.learn.checked ? t("weighted") : t("base");
+
+  const drawCountEl = document.getElementById("drawCount");
+  if (drawCountEl) {
+    drawCountEl.textContent = `(${model.totalDraws} sorteos)`;
+  }
 
   const hot = Object.entries(model.freq)
     .sort((a, b) => b[1] - a[1])
@@ -90,7 +94,7 @@ function renderPatterns(model){
 }
 
 function renderRecommendations(model){
-  const list = generateRecommendations(model.freq, model.superFreq);
+  const list = generateRecommendations(model);
   if(!list.length){
     els.recommendations.innerHTML = `<span class="muted">${t('noData')}</span>`;
     return;
