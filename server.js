@@ -59,8 +59,20 @@ const syncLimiter = rateLimit({
   message: { ok: false, error: 'Límite de sincronización alcanzado. Espera 10 minutos.' }
 });
 
-app.use(express.json());
-// Servir solo archivos específicos o carpetas seguras
+app.use(express.json({limit: '50mb'}));
+
+app.post('/api/force-upload', async (req, res) => {
+  try {
+    const draws = req.body;
+    if (!Array.isArray(draws)) return res.json({ok: false});
+    const { error } = await supabase.from('draws').upsert(draws, { onConflict: 'date_label' });
+    if (error) throw error;
+    res.json({ok: true, count: draws.length});
+  } catch(e) {
+    res.status(500).json({error: e.message});
+  }
+});
+
 // Servir solo archivos específicos o carpetas seguras
 app.get('/', (req, res) => {
   // Disparar sincronización silenciosa si es necesario
