@@ -9,6 +9,9 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Necesario para que Render/Proxies pasen la IP real del cliente
+app.set('trust proxy', 1);
+
 // ── Seguridad: Headers HTTP ──────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false, // permitir scripts inline del frontend
@@ -37,7 +40,7 @@ app.use(cors({
 // ── Seguridad: Rate Limiting global ──────────────────
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100,                  // máx 100 requests por IP
+  max: 500,                  // Aumentado a 500 para evitar bloqueos por assets
   standardHeaders: true,
   legacyHeaders: false,
   message: { ok: false, error: 'Demasiadas solicitudes. Intenta en 15 minutos.' }
@@ -47,7 +50,7 @@ app.use(globalLimiter);
 // ── Rate Limiting estricto para sync ─────────────────
 const syncLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutos
-  max: 5,                    // máx 5 syncs por IP cada 10 min
+  max: 20,                   // máx 20 syncs por IP cada 10 min
   standardHeaders: true,
   legacyHeaders: false,
   message: { ok: false, error: 'Límite de sincronización alcanzado. Espera 10 minutos.' }
