@@ -142,7 +142,7 @@ async function scrapeBaloto(pages = 2) {
 // ── Endpoint: Sincronización protegida ───────────────
 app.get('/api/sync', syncLimiter, requireSyncToken, async (req, res) => {
   try {
-    const pages = Math.min(parseInt(req.query.pages) || 2, 5); // máx 5 páginas
+    const pages = Math.min(parseInt(req.query.pages) || 2, 40); // máx 40 páginas para historia profunda
     const draws = await scrapeBaloto(pages);
 
     if (draws.length > 0) {

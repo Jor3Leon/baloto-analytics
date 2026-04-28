@@ -38,6 +38,7 @@ const els = {
   btnSync: document.getElementById("syncBtn"),
   btnExport: document.getElementById("exportBtn"),
   menuAbout: document.getElementById("menuAbout"),
+  menuDeepSync: document.getElementById("menuDeepSync"),
   aboutPanel: document.getElementById("aboutPanel")
 };
 
@@ -85,17 +86,17 @@ function normalizeRemoteDraw(item){
 const SYNC_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`;
 const SPIN_ICON  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 12a9 9 0 1 1-9-9"/></svg>`;
 
-function setSyncLoading(loading) {
+function setSyncLoading(loading, label = "SINCRONIZANDO...") {
   const btn = document.getElementById("syncBtn");
   if (!btn) return;
   btn.disabled = loading;
   btn.innerHTML = loading
-    ? `${SPIN_ICON} SINCRONIZANDO...`
+    ? `${SPIN_ICON} ${label}`
     : `${SYNC_ICON} SINCRO ONLINE`;
   btn.style.opacity = loading ? "0.7" : "";
 }
 
-async function syncFromBaloto({ silent = false } = {}){
+async function syncFromBaloto({ silent = false, pages = 2 } = {}){
   if(window.location.protocol === "file:"){
     if(!silent){
       showNotice("La sincronizacion automatica requiere abrir la app desde localhost o XAMPP.", "warning");
@@ -122,7 +123,11 @@ async function syncFromBaloto({ silent = false } = {}){
       if (typeof setSyncToken === 'function') setSyncToken(token);
     }
 
-    const syncUrl = `/api/sync?pages=2${token ? '&token=' + encodeURIComponent(token) : ''}`;
+    if (!silent && pages > 5) {
+      setSyncLoading(true, "SINCRO PROFUNDA...");
+    }
+
+    const syncUrl = `/api/sync?pages=${pages}${token ? '&token=' + encodeURIComponent(token) : ''}`;
     const response = await fetch(syncUrl, {
       headers: {
         'Accept': 'application/json',
@@ -332,6 +337,16 @@ async function init(){
       toggleSidebar();
       const aboutTitle = (typeof t === "function" && t("about")) ? t("about") : "Acerca de la App";
       openDetailWindow(els.aboutPanel, aboutTitle);
+    });
+  }
+
+  if (els.menuDeepSync) {
+    els.menuDeepSync.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleSidebar();
+      if (confirm("¿Deseas realizar una sincronización profunda? Esto buscará resultados de aproximadamente 1 año atrás. Puede tardar unos segundos.")) {
+        syncFromBaloto({ silent: false, pages: 30 });
+      }
     });
   }
   let resizeTimer;
