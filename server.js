@@ -59,16 +59,36 @@ const syncLimiter = rateLimit({
   message: { ok: false, error: 'Límite de sincronización alcanzado. Espera 10 minutos.' }
 });
 
+// ── Supabase config (backend con service role) ───────
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+if (!supabaseUrl || !supabaseKey) {
+  console.error('CRITICAL: Supabase URL or Key missing in server environment!');
+}
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 app.use(express.json({limit: '50mb'}));
 
 app.post('/api/force-upload', async (req, res) => {
   try {
     const draws = req.body;
-    if (!Array.isArray(draws)) return res.json({ok: false});
+    console.log(`Recibida petición de force-upload con ${draws?.length} sorteos.`);
+    
+    if (!Array.isArray(draws)) {
+      console.error('Error: El cuerpo de la petición no es un array');
+      return res.status(400).json({ok: false, error: 'Cuerpo inválido'});
+    }
+    
     const { error } = await supabase.from('draws').upsert(draws, { onConflict: 'date_label' });
-    if (error) throw error;
+    if (error) {
+      console.error('Error de Supabase en upsert:', error);
+      throw error;
+    }
+    
+    console.log(`Éxito: ${draws.length} sorteos guardados en Supabase.`);
     res.json({ok: true, count: draws.length});
   } catch(e) {
+    console.error('Excepción en /api/force-upload:', e.message);
     res.status(500).json({error: e.message});
   }
 });
@@ -94,11 +114,6 @@ app.use('/assets', express.static(__dirname + '/assets'));
 app.use('/data', express.static(__dirname + '/data'));
 // Bloquear acceso a archivos sensibles explícitamente
 app.get(['/.env', '/package.json', '/package-lock.json', '/render.yaml'], (req, res) => res.status(403).send('Forbidden'));
-
-// ── Supabase config (backend con service role) ───────
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ── Seguridad: Middleware de autenticación para sync ─
 function requireSyncToken(req, res, next) {
