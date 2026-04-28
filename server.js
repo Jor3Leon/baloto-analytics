@@ -9,6 +9,9 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+let lastAutoSync = 0;
+const AUTO_SYNC_COOLDOWN = 6 * 60 * 60 * 1000; // 6 horas
+
 // Necesario para que Render/Proxies pasen la IP real del cliente
 app.set('trust proxy', 1);
 
@@ -58,7 +61,23 @@ const syncLimiter = rateLimit({
 
 app.use(express.json());
 // Servir solo archivos específicos o carpetas seguras
-app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+// Servir solo archivos específicos o carpetas seguras
+app.get('/', (req, res) => {
+  // Disparar sincronización silenciosa si es necesario
+  const now = Date.now();
+  if (now - lastAutoSync > AUTO_SYNC_COOLDOWN) {
+    lastAutoSync = now;
+    console.log('Iniciando autosincronización en segundo plano...');
+    scrapeBaloto(2).then(draws => {
+      if (draws.length > 0) {
+        supabase.from('draws').upsert(draws, { onConflict: 'date_label' })
+          .then(() => console.log(`Autosinc exitosa: ${draws.length} sorteos.`))
+          .catch(e => console.error('Error en autosinc upsert:', e));
+      }
+    }).catch(e => console.error('Error en autosinc scrape:', e));
+  }
+  res.sendFile(__dirname + '/index.html');
+});
 app.use('/assets', express.static(__dirname + '/assets'));
 app.use('/data', express.static(__dirname + '/data'));
 // Bloquear acceso a archivos sensibles explícitamente
@@ -142,8 +161,8 @@ async function scrapeBaloto(pages = 2) {
   return allItems;
 }
 
-// ── Endpoint: Sincronización protegida ───────────────
-app.get('/api/sync', syncLimiter, requireSyncToken, async (req, res) => {
+// ── Endpoint: Sincronización protegida (mantenemos para tareas externas) ─
+app.get('/api/sync', syncLimiter, async (req, res) => {
   try {
     const pages = Math.min(parseInt(req.query.pages) || 2, 40); // máx 40 páginas para historia profunda
     const draws = await scrapeBaloto(pages);

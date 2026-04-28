@@ -17,7 +17,6 @@ const els = {
   topPairs: document.getElementById("topPairs"),
   topTriples: document.getElementById("topTriples"),
   exportBtn: document.getElementById("exportBtn"),
-  syncBtn: document.getElementById("syncBtn"),
   recommendations: document.getElementById("recommendations"),
   toggleChartsBtn: document.getElementById("toggleChartsBtn"),
   toggleRecommendationsBtn: document.getElementById("toggleRecommendationsBtn"),
@@ -35,10 +34,8 @@ const els = {
   closeSidebarBtn: document.getElementById("closeSidebarBtn"),
   langEsBtn: document.getElementById("lang-es"),
   langEnBtn: document.getElementById("lang-en"),
-  btnSync: document.getElementById("syncBtn"),
   btnExport: document.getElementById("exportBtn"),
   menuAbout: document.getElementById("menuAbout"),
-  menuDeepSync: document.getElementById("menuDeepSync"),
   aboutPanel: document.getElementById("aboutPanel")
 };
 
@@ -113,35 +110,11 @@ async function syncFromBaloto({ silent = false, pages = 2 } = {}){
 
     let token = typeof getSyncToken === 'function' ? getSyncToken() : '';
     
-    // Si no hay token, pedirlo al usuario
-    if (!token && !silent) {
-      token = prompt("Por favor, ingresa el token de sincronización:");
-      if (!token) {
-        setSyncLoading(false);
-        return false;
-      }
-      if (typeof setSyncToken === 'function') setSyncToken(token);
-    }
-
-    if (!silent && pages > 5) {
-      setSyncLoading(true, "SINCRO PROFUNDA...");
-    }
-
+    // Si es automático, intentamos sincronizar sin preguntar nada
     const syncUrl = `/api/sync?pages=${pages}${token ? '&token=' + encodeURIComponent(token) : ''}`;
-    const response = await fetch(syncUrl, {
-      headers: {
-        'Accept': 'application/json',
-        'X-Sync-Token': token
-      }
-    });
+    const response = await fetch(syncUrl);
 
     const payload = await response.json();
-    if (response.status === 401) {
-      // Token inválido, limpiar y pedir de nuevo
-      if (typeof setSyncToken === 'function') setSyncToken('');
-      if (!silent) showNotice("Token de sincronización inválido.", "error");
-      throw new Error("Token inválido.");
-    }
 
     if(!response.ok || !payload.ok){
       throw new Error(payload.error || `No se pudo sincronizar. HTTP ${response.status}`);
@@ -273,7 +246,6 @@ async function init(){
   if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
   els.learn.addEventListener("change", () => refreshDashboard(buildModel(loadDraws())));
   els.exportBtn.addEventListener("click", generatePDFReport);
-  els.syncBtn.addEventListener("click", () => syncFromBaloto());
   els.toggleChartsBtn.addEventListener("click", () => {
     openDetailWindow(els.chartsPanel, t("trendCharts"));
   });
@@ -315,11 +287,7 @@ async function init(){
     });
   }
 
-  if (els.btnSync) {
-    els.btnSync.addEventListener("click", () => {
-      syncFromBaloto({ silent: false });
-    });
-  }
+
   // El listener de exportBtn ya se configuró arriba, no es necesario repetirlo
 
   document.querySelectorAll('.sidebar-menu a').forEach(link => {
@@ -340,15 +308,7 @@ async function init(){
     });
   }
 
-  if (els.menuDeepSync) {
-    els.menuDeepSync.addEventListener('click', (e) => {
-      e.preventDefault();
-      toggleSidebar();
-      if (confirm("¿Deseas realizar una sincronización profunda? Esto buscará resultados de aproximadamente 1 año atrás. Puede tardar unos segundos.")) {
-        syncFromBaloto({ silent: false, pages: 30 });
-      }
-    });
-  }
+
   let resizeTimer;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
