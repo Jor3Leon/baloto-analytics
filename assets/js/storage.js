@@ -53,14 +53,18 @@ async function syncDrawsFromCloud() {
             if (local && local.length > 50) {
                 console.log("Nube vacía. Migrando automáticamente " + local.length + " sorteos a la web...");
                 try {
-                    await fetch('/api/force-upload', {
+                    const resp = await fetch('/api/force-upload', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(local)
                     });
+                    if (!resp.ok) {
+                        const errData = await resp.json();
+                        throw new Error(errData.error || "Fallo en la subida");
+                    }
                     console.log("Migración completada con éxito.");
                 } catch(e) {
-                    console.error("Error en migración", e);
+                    console.error("Error en migración:", e.message);
                 }
             }
         }
