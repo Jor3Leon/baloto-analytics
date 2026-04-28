@@ -103,6 +103,20 @@ app.post('/api/force-upload', async (req, res) => {
   }
 });
 
+app.get('/api/draws', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('draws')
+      .select('*')
+      .order('date_label', { ascending: false });
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Servir solo archivos específicos o carpetas seguras
 app.get('/', (req, res) => {
   // Disparar sincronización silenciosa si es necesario

@@ -64,18 +64,17 @@ async function dbClearHistory() {
 }
 
 async function dbLoadDraws() {
-  if (!supabaseClient) return [];
   try {
-    const { data, error } = await supabaseClient
-      .from('draws')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error("Error loading draws from cloud:", error);
-      return [];
+    // Usamos nuestra API interna que tiene SERVICE_ROLE_KEY para saltar el RLS
+    const resp = await fetch('/api/draws');
+    if (!resp.ok) {
+      console.warn("API /api/draws falló, intentando SDK directo...");
+      if (!supabaseClient) return [];
+      const { data, error } = await supabaseClient.from('draws').select('*').order('date_label', { ascending: false });
+      if (error) throw error;
+      return data || [];
     }
-    return data || [];
+    return await resp.json();
   } catch (e) {
     console.error("Critical error loading draws:", e);
     return [];
