@@ -36,30 +36,33 @@ function generatePDFReport() {
     const CONTENT_W = W - MARGIN * 2;
     let y = 0;
 
-    // ── Colores del diseño (RGB para máxima compatibilidad) ──
-    const DARK      = [15, 23, 42];
-    const ACCENT    = [212, 255, 0];
-    const CYAN      = [0, 200, 255];
+    // ── Colores del diseño (Neutros y Elegantes) ──
+    const PAGE_BG   = [255, 255, 255];
+    const TEXT_MAIN = [15, 23, 42];
+    const ACCENT    = [37, 99, 235]; 
+    const CYAN      = [30, 64, 175];
     const WHITE     = [255, 255, 255];
-    const GRAY      = [148, 163, 184];
-    const CARD_BG   = [30, 41, 59];
-    const RED_HOT   = [239, 68, 68];
-    const BLUE_COLD = [59, 130, 246];
-    const AMBER     = [251, 191, 36];
-    const DARK_GRID = [20, 30, 48];
+    const GRAY      = [71, 85, 105];
+    const CARD_BG   = [241, 245, 249];
+    const RED_HOT   = [220, 38, 38];
+    const BLUE_COLD = [37, 99, 235];
+    const AMBER     = [180, 83, 9];
+    const DARK_GRID = [248, 250, 252];
+    const BORDER    = [203, 213, 225];
 
     function applyPageStyle() {
-      doc.setFillColor(DARK[0], DARK[1], DARK[2]);
+      doc.setFillColor(PAGE_BG[0], PAGE_BG[1], PAGE_BG[2]);
       doc.rect(0, 0, W, H, "F");
+      // Línea decorativa superior sutil
       doc.setFillColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-      doc.rect(0, 0, W, 2, "F");
+      doc.rect(0, 0, W, 1.5, "F");
     }
 
     function addFooter(pageNum, totalPages) {
       doc.setFontSize(7);
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-      doc.text(`BALOTO ANALYTICS — Reporte generado el ${new Date().toLocaleString('es-CO')}`, MARGIN, H - 6);
-      doc.text(`Página ${pageNum} de ${totalPages}`, W - MARGIN, H - 6, { align: "right" });
+      doc.text(`BALOTO ANALYTICS — Reporte generado el ${new Date().toLocaleString('es-CO')}`, W / 2, H - 10, { align: "center" });
+      doc.text(`Página ${pageNum} de ${totalPages}`, W - MARGIN, H - 10, { align: "right" });
     }
 
     function checkPageBreak(needed) {
@@ -90,7 +93,7 @@ function generatePDFReport() {
     // ═══════════════════════════════════════════════════
     // PÁGINA 1: PORTADA
     // ═══════════════════════════════════════════════════
-    doc.setFillColor(DARK[0], DARK[1], DARK[2]);
+    doc.setFillColor(PAGE_BG[0], PAGE_BG[1], PAGE_BG[2]);
     doc.rect(0, 0, W, H, "F");
     doc.setFillColor(ACCENT[0], ACCENT[1], ACCENT[2]);
     doc.rect(0, 0, W, 3, "F");
@@ -100,7 +103,7 @@ function generatePDFReport() {
     doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
     doc.text("BALOTO", W / 2, 65, { align: "center" });
     doc.setFontSize(28);
-    doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+    doc.setTextColor(TEXT_MAIN[0], TEXT_MAIN[1], TEXT_MAIN[2]);
     doc.text("ANALYTICS", W / 2, 78, { align: "center" });
 
     doc.setDrawColor(ACCENT[0], ACCENT[1], ACCENT[2]);
@@ -177,12 +180,12 @@ function generatePDFReport() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-    doc.text("ANÁLISIS DE FRECUENCIAS", MARGIN, y);
+    doc.text("ANÁLISIS DE FRECUENCIAS", W / 2, y, { align: "center" });
     y += 10;
 
     doc.setFontSize(10);
     doc.setTextColor(RED_HOT[0], RED_HOT[1], RED_HOT[2]);
-    doc.text("🔥 NÚMEROS CALIENTES — Top 10", MARGIN, y);
+    doc.text("🔥 NÚMEROS CALIENTES — Top 10", W / 2, y, { align: "center" });
     y += 2;
 
     const hotTop10 = hot.slice(0, 10);
@@ -201,7 +204,7 @@ function generatePDFReport() {
     if (superSorted.length) {
       const topSuper = superSorted[0];
       const sbx = MARGIN + ballSpacing * (10 + 0.5) + 3;
-      drawNumberBall(sbx, y + 3, topSuper[0], ACCENT, DARK, 5);
+      drawNumberBall(sbx, y + 3, topSuper[0], ACCENT, WHITE, 5);
       doc.setFontSize(6);
       doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
       doc.text("SUPER", sbx, y + 11, { align: "center" });
@@ -212,7 +215,7 @@ function generatePDFReport() {
     y += 5;
     doc.setFontSize(10);
     doc.setTextColor(BLUE_COLD[0], BLUE_COLD[1], BLUE_COLD[2]);
-    doc.text("❄️ NÚMEROS FRÍOS — Top 10", MARGIN, y);
+    doc.text("❄️ NÚMEROS FRÍOS — Top 10", W / 2, y, { align: "center" });
     y += 2;
 
     const coldTop10 = cold.slice(0, 10);
@@ -241,7 +244,7 @@ function generatePDFReport() {
     y += 5;
     doc.setFontSize(10);
     doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-    doc.text("⭐ SUPERBALOTA — Frecuencias (1-16)", MARGIN, y);
+    doc.text("⭐ SUPERBALOTA — Frecuencias (1-16)", W / 2, y, { align: "center" });
     y += 2;
 
     drawRoundedRect(MARGIN, y, CONTENT_W, 22, 3, CARD_BG);
@@ -252,8 +255,8 @@ function generatePDFReport() {
     for (let i = 1; i <= sMax; i++) {
       const bx = MARGIN + superSpacing * (i - 0.5) + 3;
       const isTop = superSorted.length && i === Number(superSorted[0][0]);
-      const bg = isTop ? ACCENT : [55, 65, 81];
-      const tc = isTop ? DARK : WHITE;
+      const bg = isTop ? ACCENT : BORDER;
+      const tc = isTop ? WHITE : TEXT_MAIN;
       drawNumberBall(bx, y + 3, i, bg, tc, 4.5);
       doc.setFontSize(5);
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
@@ -265,7 +268,7 @@ function generatePDFReport() {
     y += 5;
     doc.setFontSize(10);
     doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-    doc.text("📊 TABLA DE FRECUENCIAS COMPLETA (1-43)", MARGIN, y);
+    doc.text("📊 TABLA DE FRECUENCIAS COMPLETA (1-43)", W / 2, y, { align: "center" });
     y += 5;
 
     const nMax = (typeof NUM_MAX !== 'undefined') ? NUM_MAX : 43;
@@ -300,15 +303,15 @@ function generatePDFReport() {
         theme: "plain",
         styles: {
           fillColor: CARD_BG,
-          textColor: WHITE,
+          textColor: TEXT_MAIN,
           fontSize: 6.5,
           cellPadding: 1.5,
-          lineColor: [55, 65, 81],
-          lineWidth: 0.2
+          lineColor: BORDER,
+          lineWidth: 0.1
         },
         headStyles: {
-          fillColor: [55, 65, 81],
-          textColor: ACCENT,
+          fillColor: ACCENT,
+          textColor: WHITE,
           fontStyle: "bold",
           fontSize: 6.5
         },
@@ -336,13 +339,13 @@ function generatePDFReport() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-    doc.text("PATRONES Y COMBINACIONES", MARGIN, y);
+    doc.text("PATRONES Y COMBINACIONES", W / 2, y, { align: "center" });
     y += 10;
 
     const topPairs = Object.entries(pairCounts).sort((a, b) => b[1] - a[1]).slice(0, 15);
     doc.setFontSize(10);
     doc.setTextColor(CYAN[0], CYAN[1], CYAN[2]);
-    doc.text("🔗 TOP 15 PAREJAS MÁS FRECUENTES", MARGIN, y);
+    doc.text("🔗 TOP 15 PAREJAS MÁS FRECUENTES", W / 2, y, { align: "center" });
     y += 5;
 
     const pairsTableData = topPairs.map(([pair, count], i) => {
@@ -358,15 +361,15 @@ function generatePDFReport() {
         theme: "plain",
         styles: {
           fillColor: CARD_BG,
-          textColor: WHITE,
+          textColor: TEXT_MAIN,
           fontSize: 7,
           cellPadding: 2,
-          lineColor: [55, 65, 81],
-          lineWidth: 0.2
+          lineColor: BORDER,
+          lineWidth: 0.1
         },
         headStyles: {
-          fillColor: [55, 65, 81],
-          textColor: CYAN,
+          fillColor: ACCENT,
+          textColor: WHITE,
           fontStyle: "bold"
         },
         alternateRowStyles: { fillColor: DARK_GRID },
@@ -385,7 +388,7 @@ function generatePDFReport() {
     const topTriples = Object.entries(tripleCounts).sort((a, b) => b[1] - a[1]).slice(0, 15);
     doc.setFontSize(10);
     doc.setTextColor(CYAN[0], CYAN[1], CYAN[2]);
-    doc.text("🔗 TOP 15 TRIPLETAS MÁS FRECUENTES", MARGIN, y);
+    doc.text("🔗 TOP 15 TRIPLETAS MÁS FRECUENTES", W / 2, y, { align: "center" });
     y += 5;
 
     const triplesTableData = topTriples.map(([triple, count], i) => {
@@ -401,15 +404,15 @@ function generatePDFReport() {
         theme: "plain",
         styles: {
           fillColor: CARD_BG,
-          textColor: WHITE,
+          textColor: TEXT_MAIN,
           fontSize: 7,
           cellPadding: 2,
-          lineColor: [55, 65, 81],
-          lineWidth: 0.2
+          lineColor: BORDER,
+          lineWidth: 0.1
         },
         headStyles: {
-          fillColor: [55, 65, 81],
-          textColor: CYAN,
+          fillColor: ACCENT,
+          textColor: WHITE,
           fontStyle: "bold"
         },
         alternateRowStyles: { fillColor: DARK_GRID },
@@ -427,7 +430,7 @@ function generatePDFReport() {
     checkPageBreak(50);
     doc.setFontSize(10);
     doc.setTextColor(AMBER[0], AMBER[1], AMBER[2]);
-    doc.text("⏳ NÚMEROS CON MAYOR ATRASO (Días sin salir)", MARGIN, y);
+    doc.text("⏳ NÚMEROS CON MAYOR ATRASO (Días sin salir)", W / 2, y, { align: "center" });
     y += 5;
 
     const overdueAll = Object.entries(model.lastSeen)
@@ -447,15 +450,15 @@ function generatePDFReport() {
         theme: "plain",
         styles: {
           fillColor: CARD_BG,
-          textColor: WHITE,
+          textColor: TEXT_MAIN,
           fontSize: 7,
           cellPadding: 2,
-          lineColor: [55, 65, 81],
-          lineWidth: 0.2
+          lineColor: BORDER,
+          lineWidth: 0.1
         },
         headStyles: {
-          fillColor: [55, 65, 81],
-          textColor: AMBER,
+          fillColor: ACCENT,
+          textColor: WHITE,
           fontStyle: "bold"
         },
         alternateRowStyles: { fillColor: DARK_GRID },
@@ -480,12 +483,12 @@ function generatePDFReport() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-    doc.text("ÚLTIMOS SORTEOS REGISTRADOS", MARGIN, y);
+    doc.text("ÚLTIMOS SORTEOS REGISTRADOS", W / 2, y, { align: "center" });
     y += 5;
 
     doc.setFontSize(8);
     doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-    doc.text(`Mostrando los últimos ${Math.min(draws.length, 30)} sorteos de ${draws.length} registrados`, MARGIN, y);
+    doc.text(`Mostrando los últimos ${Math.min(draws.length, 30)} sorteos de ${draws.length} registrados`, W / 2, y, { align: "center" });
     y += 7;
 
     const recentDraws = draws.slice(-30).reverse();
@@ -504,15 +507,15 @@ function generatePDFReport() {
         theme: "plain",
         styles: {
           fillColor: CARD_BG,
-          textColor: WHITE,
+          textColor: TEXT_MAIN,
           fontSize: 7,
           cellPadding: 2,
-          lineColor: [55, 65, 81],
-          lineWidth: 0.2
+          lineColor: BORDER,
+          lineWidth: 0.1
         },
         headStyles: {
-          fillColor: [55, 65, 81],
-          textColor: ACCENT,
+          fillColor: ACCENT,
+          textColor: WHITE,
           fontStyle: "bold"
         },
         alternateRowStyles: { fillColor: DARK_GRID },
@@ -531,11 +534,11 @@ function generatePDFReport() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-    doc.text("🎯 COMBINACIONES RECOMENDADAS POR EL MOTOR", MARGIN, y);
+    doc.text("🎯 COMBINACIONES RECOMENDADAS POR EL MOTOR", W / 2, y, { align: "center" });
     y += 3;
     doc.setFontSize(7);
     doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-    doc.text("Basadas en análisis de frecuencia ponderada, balance par/impar y dispersión numérica.", MARGIN, y);
+    doc.text("Basadas en análisis de frecuencia ponderada, balance par/impar y dispersión numérica.", W / 2, y, { align: "center" });
     y += 6;
 
     const recs = (typeof generateRecommendations === 'function') ? generateRecommendations(model.freq, model.superFreq) : [];
@@ -557,15 +560,15 @@ function generatePDFReport() {
         theme: "plain",
         styles: {
           fillColor: CARD_BG,
-          textColor: WHITE,
+          textColor: TEXT_MAIN,
           fontSize: 7,
           cellPadding: 2,
-          lineColor: [55, 65, 81],
-          lineWidth: 0.2
+          lineColor: BORDER,
+          lineWidth: 0.1
         },
         headStyles: {
-          fillColor: [55, 65, 81],
-          textColor: ACCENT,
+          fillColor: ACCENT,
+          textColor: WHITE,
           fontStyle: "bold"
         },
         alternateRowStyles: { fillColor: DARK_GRID },
