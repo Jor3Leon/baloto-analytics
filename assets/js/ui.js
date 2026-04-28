@@ -20,8 +20,13 @@ function formatPillsWithSuper(values, superNum, superColor){
 function showNotice(message, type = "info"){
   const notice = document.getElementById("noticeBar");
   if(!notice) return;
-  notice.className = `notice notice-${type}`;
-  notice.textContent = message;
+  notice.innerHTML = `<div class="notice notice-${type}">${message}</div>`;
+  
+  // Auto-limpiar despues de 6 segundos
+  if (window._noticeTimeout) clearTimeout(window._noticeTimeout);
+  window._noticeTimeout = setTimeout(() => {
+    notice.innerHTML = "";
+  }, 6000);
 }
 
 

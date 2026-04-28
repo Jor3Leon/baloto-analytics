@@ -315,11 +315,7 @@ async function init(){
       syncFromBaloto({ silent: false });
     });
   }
-  if (els.btnExport) {
-    els.btnExport.addEventListener("click", () => {
-      generatePDFReport();
-    });
-  }
+  // El listener de exportBtn ya se configuró arriba, no es necesario repetirlo
 
   document.querySelectorAll('.sidebar-menu a').forEach(link => {
     if (link.id === 'menuAbout') return;
