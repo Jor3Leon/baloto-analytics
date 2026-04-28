@@ -23,7 +23,16 @@ async function initSupabase() {
 }
 
 function getSyncToken() {
-  return _syncToken;
+  return _syncToken || localStorage.getItem('sync_token') || '';
+}
+
+function setSyncToken(token) {
+  _syncToken = token;
+  if (token) {
+    localStorage.setItem('sync_token', token);
+  } else {
+    localStorage.removeItem('sync_token');
+  }
 }
 
 async function dbSaveHistory(history) {

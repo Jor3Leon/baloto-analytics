@@ -54,7 +54,12 @@ const syncLimiter = rateLimit({
 });
 
 app.use(express.json());
-app.use(express.static('.'));
+// Servir solo archivos específicos o carpetas seguras
+app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+app.use('/assets', express.static(__dirname + '/assets'));
+app.use('/data', express.static(__dirname + '/data'));
+// Bloquear acceso a archivos sensibles explícitamente
+app.get(['/.env', '/package.json', '/package-lock.json', '/render.yaml'], (req, res) => res.status(403).send('Forbidden'));
 
 // ── Supabase config (backend con service role) ───────
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -79,8 +84,8 @@ function requireSyncToken(req, res, next) {
 app.get('/api/config', (req, res) => {
   res.json({
     supabaseUrl: process.env.SUPABASE_URL || '',
-    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
-    syncToken: process.env.SYNC_SECRET || ''
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
+    // syncToken eliminado de la config pública por seguridad
   });
 });
 
@@ -108,16 +113,25 @@ async function scrapeBaloto(pages = 2) {
     while ((match = pattern.exec(text)) !== null) {
       const numbers = match[2].split('-').map(n => parseInt(n.trim()));
       if (numbers.length >= 6) {
-        const baseDate = match[1].trim();
-        dateOccurrences[baseDate] = (dateOccurrences[baseDate] || 0) + 1;
-        const suffix = dateOccurrences[baseDate] === 1 ? ' - Baloto' : ' - Revancha';
+        const regularNums = numbers.slice(0, 5);
+        const superBall = numbers[5];
+        
+        // Validación básica de rangos
+        const validRegular = regularNums.every(n => n >= 1 && n <= 43);
+        const validSuper = superBall >= 1 && superBall <= 16;
 
-        allItems.push({
-          date_label: baseDate + suffix,
-          nums: numbers.slice(0, 5),
-          super_ball: numbers[5],
-          source: 'baloto.com'
-        });
+        if (validRegular && validSuper) {
+          const baseDate = match[1].trim();
+          dateOccurrences[baseDate] = (dateOccurrences[baseDate] || 0) + 1;
+          const suffix = dateOccurrences[baseDate] === 1 ? ' - Baloto' : ' - Revancha';
+
+          allItems.push({
+            date_label: baseDate + suffix,
+            nums: regularNums,
+            super_ball: superBall,
+            source: 'baloto.com'
+          });
+        }
       }
     }
     if (allItems.length === 0) break;

@@ -110,7 +110,18 @@ async function syncFromBaloto({ silent = false } = {}){
       showNotice("Sincronizando resultados publicados en baloto.com...", "info");
     }
 
-    const token = typeof getSyncToken === 'function' ? getSyncToken() : '';
+    let token = typeof getSyncToken === 'function' ? getSyncToken() : '';
+    
+    // Si no hay token, pedirlo al usuario
+    if (!token && !silent) {
+      token = prompt("Por favor, ingresa el token de sincronización:");
+      if (!token) {
+        setSyncLoading(false);
+        return false;
+      }
+      if (typeof setSyncToken === 'function') setSyncToken(token);
+    }
+
     const syncUrl = `/api/sync?pages=2${token ? '&token=' + encodeURIComponent(token) : ''}`;
     const response = await fetch(syncUrl, {
       headers: {
@@ -120,6 +131,13 @@ async function syncFromBaloto({ silent = false } = {}){
     });
 
     const payload = await response.json();
+    if (response.status === 401) {
+      // Token inválido, limpiar y pedir de nuevo
+      if (typeof setSyncToken === 'function') setSyncToken('');
+      if (!silent) showNotice("Token de sincronización inválido.", "error");
+      throw new Error("Token inválido.");
+    }
+
     if(!response.ok || !payload.ok){
       throw new Error(payload.error || `No se pudo sincronizar. HTTP ${response.status}`);
     }
@@ -249,7 +267,7 @@ async function init(){
   const clearHistoryBtn = document.getElementById("clearHistoryBtn");
   if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
   els.learn.addEventListener("change", () => refreshDashboard(buildModel(loadDraws())));
-  els.exportBtn.addEventListener("click", exportCsv);
+  els.exportBtn.addEventListener("click", generatePDFReport);
   els.syncBtn.addEventListener("click", () => syncFromBaloto());
   els.toggleChartsBtn.addEventListener("click", () => {
     openDetailWindow(els.chartsPanel, t("trendCharts"));
@@ -299,15 +317,7 @@ async function init(){
   }
   if (els.btnExport) {
     els.btnExport.addEventListener("click", () => {
-      const draws = loadDraws();
-      const csv = "Sorteo,Fecha,Num1,Num2,Num3,Num4,Num5,Super\n" + 
-        draws.map(d => `${d.id},${d.date},${d.nums.join(",")},${d.super}`).join("\n");
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.setAttribute('href', url);
-      a.setAttribute('download', `baloto_export_${new Date().toISOString().split('T')[0]}.csv`);
-      a.click();
+      generatePDFReport();
     });
   }
 

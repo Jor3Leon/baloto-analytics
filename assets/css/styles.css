@@ -164,6 +164,12 @@ body {
   overflow: hidden;
   width: 100%;
   max-width: 100%;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .stat-card strong {
@@ -433,13 +439,16 @@ input:checked + .slider:before {
 }
 
 .row-nowrap {
+  display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 8px;
+  margin-bottom: -4px;
   width: 100%;
   max-width: 100%;
-  /* Habilitar scroll táctil suave en iOS/Android */
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 /* Scrollbar invisible for row-nowrap to keep it clean */

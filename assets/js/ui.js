@@ -9,7 +9,10 @@ function formatPillsWithSuper(values, superNum, superColor){
   if(!values.length) return `<span class="muted">${t('noData')}</span>`;
   const pills = values.map(v => `<span class="pill">${v}</span>`).join("");
   const superBadge = superNum != null
-    ? `<span class="pill pill-super" style="background:${superColor};color:#000;border-color:${superColor};" title="Superbalota">★ ${superNum}</span>`
+    ? `<div class="super-pill-container" style="margin-left: 12px; display: flex; align-items: center; gap: 6px; border-left: 1px solid var(--border); padding-left: 12px;">
+         <span class="label" style="font-size: 9px; opacity: 0.7;">SUPER</span>
+         <span class="pill pill-super" style="background:${superColor};color:#000;border-color:${superColor}; font-weight: bold;" title="Superbalota">★ ${superNum}</span>
+       </div>`
     : "";
   return pills + superBadge;
 }
