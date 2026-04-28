@@ -10,6 +10,10 @@ services:
         value: https://fuygccurtzjjbstwxaly.supabase.co
       - key: SUPABASE_ANON_KEY
         value: sb_publishable_4a508AX-u2-eN0QpPOjdKg_TRi6nLfT
+      - key: SYNC_SECRET
+        value: baloto_sync_2026_s3cur3
+      - key: ALLOWED_ORIGINS
+        value: https://baloto-analytics.onrender.com
       - key: NODE_ENV
         value: production
       - key: PORT

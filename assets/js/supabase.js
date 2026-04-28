@@ -1,38 +1,55 @@
-/* Cliente de Supabase para el Frontend */
-// Estos datos se cargarán de la config o se inyectarán
-const SUPABASE_URL = "https://fuygccurtzjjbstwxaly.supabase.co";
-const SUPABASE_KEY = "sb_publishable_4a508AX-u2-eN0QpPOjdKg_TRi6nLfT"; // Clave pública real
+/* Cliente de Supabase para el Frontend.
+   Las credenciales se cargan dinámicamente desde el servidor
+   para evitar exponer claves en el código fuente. */
 
 let supabaseClient = null;
+let _syncToken = '';
 
-if (typeof supabase !== 'undefined') {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+async function initSupabase() {
+  try {
+    const resp = await fetch('/api/config');
+    if (!resp.ok) throw new Error('No se pudo cargar la configuración');
+    const config = await resp.json();
+
+    if (config.supabaseUrl && config.supabaseAnonKey && typeof supabase !== 'undefined') {
+      supabaseClient = supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+    }
+
+    // Guardar el token de sync para usarlo en las llamadas
+    _syncToken = config.syncToken || '';
+  } catch (e) {
+    console.warn('Supabase init (modo offline):', e.message);
+  }
+}
+
+function getSyncToken() {
+  return _syncToken;
 }
 
 async function dbSaveHistory(history) {
-    if (!supabaseClient) return;
-    const { data, error } = await supabaseClient
-        .from('history')
-        .insert(history);
-    if (error) console.error("Error saving history:", error);
-    return data;
+  if (!supabaseClient) return;
+  const { data, error } = await supabaseClient
+    .from('history')
+    .insert(history);
+  if (error) console.error("Error saving history:", error);
+  return data;
 }
 
 async function dbLoadHistory() {
-    if (!supabaseClient) return [];
-    const { data, error } = await supabaseClient
-        .from('history')
-        .select('*')
-        .order('created_at', { ascending: false });
-    if (error) console.error("Error loading history:", error);
-    return data || [];
+  if (!supabaseClient) return [];
+  const { data, error } = await supabaseClient
+    .from('history')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) console.error("Error loading history:", error);
+  return data || [];
 }
 
 async function dbClearHistory() {
-    if (!supabaseClient) return;
-    const { error } = await supabaseClient
-        .from('history')
-        .delete()
-        .neq('id', 0); // Delete all
-    if (error) console.error("Error clearing history:", error);
+  if (!supabaseClient) return;
+  const { error } = await supabaseClient
+    .from('history')
+    .delete()
+    .neq('id', 0);
+  if (error) console.error("Error clearing history:", error);
 }

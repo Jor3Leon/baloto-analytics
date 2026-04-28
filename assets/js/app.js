@@ -110,9 +110,12 @@ async function syncFromBaloto({ silent = false } = {}){
       showNotice("Sincronizando resultados publicados en baloto.com...", "info");
     }
 
-    const response = await fetch("/api/sync?pages=2", {
+    const token = typeof getSyncToken === 'function' ? getSyncToken() : '';
+    const syncUrl = `/api/sync?pages=2${token ? '&token=' + encodeURIComponent(token) : ''}`;
+    const response = await fetch(syncUrl, {
       headers: {
-        Accept: "application/json"
+        'Accept': 'application/json',
+        'X-Sync-Token': token
       }
     });
 
@@ -232,6 +235,9 @@ function generateAll(){
 
 
 async function init(){
+  // Inicializar Supabase (carga credenciales desde el servidor)
+  if (typeof initSupabase === 'function') await initSupabase();
+
   // Intentar sincronizar con la nube (Supabase) al inicio
   const draws = await syncDrawsFromCloud();
   await syncHistoryFromCloud();
