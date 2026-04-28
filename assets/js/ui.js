@@ -5,6 +5,15 @@ function formatPills(values){
   return values.map(v => `<span class="pill">${v}</span>`).join("");
 }
 
+function formatPillsWithSuper(values, superNum, superColor){
+  if(!values.length) return `<span class="muted">${t('noData')}</span>`;
+  const pills = values.map(v => `<span class="pill">${v}</span>`).join("");
+  const superBadge = superNum != null
+    ? `<span class="pill pill-super" style="background:${superColor};color:#000;border-color:${superColor};" title="Superbalota">★ ${superNum}</span>`
+    : "";
+  return pills + superBadge;
+}
+
 function showNotice(message, type = "info"){
   const notice = document.getElementById("noticeBar");
   if(!notice) return;
@@ -31,8 +40,13 @@ function renderModel(model){
     .slice(0, 5)
     .map(([n, gap]) => `${n} (${gap})`);
 
-  els.hotNumbers.innerHTML = formatPills(hot);
-  els.coldNumbers.innerHTML = formatPills(cold);
+  // Superbalota caliente (más frecuente) y fría (menos frecuente)
+  const superSorted = Object.entries(model.superFreq).sort((a, b) => b[1] - a[1]);
+  const hotSuper  = superSorted.length ? Number(superSorted[0][0]) : null;
+  const coldSuper = superSorted.length ? Number(superSorted[superSorted.length - 1][0]) : null;
+
+  els.hotNumbers.innerHTML  = formatPillsWithSuper(hot,  hotSuper,  "var(--primary)");
+  els.coldNumbers.innerHTML = formatPillsWithSuper(cold, coldSuper, "var(--primary-2)");
   els.overdueNumbers.innerHTML = formatPills(overdue);
 
 }
