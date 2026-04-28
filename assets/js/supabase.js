@@ -69,7 +69,7 @@ async function dbLoadDraws() {
     const { data, error } = await supabaseClient
       .from('draws')
       .select('*')
-      .order('date_label', { ascending: false });
+      .order('created_at', { ascending: false });
     
     if (error) {
       console.error("Error loading draws from cloud:", error);
