@@ -29,4 +29,6 @@ Herramienta profesional de modelado estadístico y análisis predictivo para el 
 - **Infraestructura**: Supabase (PostgreSQL) + Render Hosting.
 
 ---
+**Desarrollado por: iFoxSitO**
+
 *Nota: Esta aplicación es netamente estadística y de entretenimiento, no garantiza premios. Juegue con responsabilidad.*

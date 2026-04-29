@@ -1110,3 +1110,31 @@ input:checked + .slider:before {
   background: rgba(239,68,68,0.12) !important;
   border-color: rgba(239,68,68,0.8) !important;
 }
+
+/* Footer & Creator Credits */
+.app-footer {
+  text-align: center;
+  padding: 30px 20px;
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  color: var(--muted);
+  font-family: var(--font-label);
+}
+
+.footer-content p {
+  margin: 5px 0;
+  font-size: 13px;
+}
+
+.creator-name {
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.intellectual-property {
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.6;
+}

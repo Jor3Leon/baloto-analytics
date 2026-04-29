@@ -61,7 +61,7 @@ function generatePDFReport() {
     function addFooter(pageNum, totalPages) {
       doc.setFontSize(7);
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-      doc.text(`BALOTO ANALYTICS — Reporte generado el ${new Date().toLocaleString('es-CO')}`, W / 2, H - 10, { align: "center" });
+      doc.text(`BALOTO ANALYTICS — Creado por iFoxSitO — Reporte generado el ${new Date().toLocaleString('es-CO')}`, W / 2, H - 10, { align: "center" });
       doc.text(`Página ${pageNum} de ${totalPages}`, W - MARGIN, H - 10, { align: "right" });
     }
 
@@ -167,8 +167,8 @@ function generatePDFReport() {
 
     doc.setFontSize(7);
     doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-    doc.text("Generado por Baloto Analytics — Motor Estadístico v1.0", W / 2, H - 15, { align: "center" });
-    doc.text("Este reporte es de uso informativo. No garantiza resultados.", W / 2, H - 10, { align: "center" });
+    doc.text("Desarrollado por iFoxSitO — Baloto Analytics — Motor Estadístico v1.0", W / 2, H - 15, { align: "center" });
+    doc.text("© Todos los derechos reservados. Este reporte es de uso informativo. No garantiza resultados.", W / 2, H - 10, { align: "center" });
 
     // ═══════════════════════════════════════════════════
     // PÁGINA 2: NÚMEROS CALIENTES & FRÍOS + FRECUENCIAS
