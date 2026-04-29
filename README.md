@@ -22,11 +22,6 @@ Herramienta profesional de modelado estadístico y análisis predictivo para el 
    - `SUPABASE_SERVICE_ROLE_KEY`: Tu clave de rol de servicio (para el scraper).
    - `ALLOWED_ORIGINS`: URLs permitidas separadas por coma.
 
-## 📂 Documentación
-
-- [API Documentation](API_DOCUMENTATION.md): Detalles de los endpoints y automatización.
-- [Testing Guide](TESTING.md): Guía para pruebas de calidad.
-
 ## 🛠️ Stack Técnico
 
 - **Backend**: Node.js + Express + Cheerio (Scraper).

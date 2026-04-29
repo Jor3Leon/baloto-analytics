@@ -554,7 +554,7 @@ function generatePDFReport() {
     doc.text("Basadas en análisis de frecuencia ponderada, balance par/impar y dispersión numérica.", W / 2, y, { align: "center" });
     y += 6;
 
-    const recs = (typeof generateRecommendations === 'function') ? generateRecommendations(model.freq, model.superFreq) : [];
+    const recs = (typeof generateRecommendations === 'function') ? generateRecommendations(model) : [];
     const recsData = recs.map((r, i) => [
       String(i + 1),
       (r.numbers || []).join(" - "),

@@ -69,40 +69,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(express.json({limit: '50mb'}));
 
-app.post('/api/force-upload', async (req, res) => {
-  try {
-    const rawDraws = req.body;
-    console.log(`Recibida petición de force-upload con ${rawDraws?.length} sorteos.`);
-    
-    if (!Array.isArray(rawDraws)) {
-      console.error('Error: El cuerpo de la petición no es un array');
-      return res.status(400).json({ok: false, error: 'Cuerpo inválido'});
-    }
-
-    // Normalizar campos para que coincidan con la DB (snake_case)
-    const normalized = rawDraws.map(d => ({
-      date_label: d.date_label || d.dateLabel,
-      nums: d.nums,
-      super_ball: d.super_ball !== undefined ? d.super_ball : d.super,
-      source: d.source || 'migration'
-    })).filter(d => d.date_label && d.nums && d.super_ball !== undefined);
-    
-    console.log(`Subiendo ${normalized.length} sorteos normalizados a Supabase...`);
-    
-    const { error } = await supabase.from('draws').upsert(normalized, { onConflict: 'date_label' });
-    if (error) {
-      console.error('Error de Supabase en upsert:', error);
-      throw error;
-    }
-    
-    console.log(`Éxito: ${normalized.length} sorteos guardados en Supabase.`);
-    res.json({ok: true, count: normalized.length});
-  } catch(e) {
-    console.error('Excepción en /api/force-upload:', e.message);
-    res.status(500).json({error: e.message});
-  }
-});
-
 app.get('/api/draws', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -135,7 +101,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 app.use('/assets', express.static(__dirname + '/assets'));
-app.use('/data', express.static(__dirname + '/data'));
+
 // Bloquear acceso a archivos sensibles explícitamente
 app.get(['/.env', '/package.json', '/package-lock.json', '/render.yaml'], (req, res) => res.status(403).send('Forbidden'));
 
